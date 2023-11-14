@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteRepositoriesConfiguration">
+    <remote-repository>
+      <option name="id" value="central" />
+      <option name="name" value="Central Repository" />
+      <option name="url" value="https://repo.maven.apache.org/maven2" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="portx-repository-snapshots" />
+      <option name="name" value="portx-repository-snapshots" />
+      <option name="url" value="https://portx.jfrog.io/portx/portx-snapshots" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="portx-repository-releases" />
+      <option name="name" value="portx-repository-releases" />
+      <option name="url" value="https://portx.jfrog.io/portx/portx-releases" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="terracotta-snapshots" />
+      <option name="name" value="terracotta-snapshots" />
+      <option name="url" value="http://www.terracotta.org/download/reflector/snapshots" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="terracotta-releases" />
+      <option name="name" value="terracotta-releases" />
+      <option name="url" value="http://www.terracotta.org/download/reflector/releases" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="central" />
+      <option name="name" value="Maven Central repository" />
+      <option name="url" value="https://repo1.maven.org/maven2" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="jboss.community" />
+      <option name="name" value="JBoss Community repository" />
+      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+    </remote-repository>
+  </component>
+</project>
