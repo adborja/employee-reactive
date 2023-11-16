@@ -1,7 +1,7 @@
 package co.edu.cedesistemas.employees.rest;
 
 import co.edu.cedesistemas.employees.model.Employee;
-import co.edu.cedesistemas.employees.repository.EmployeeRepository;
+import co.edu.cedesistemas.employees.service.EmployeeService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -22,22 +22,23 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("employees")
 public class EmployeeResource {
-    private final EmployeeRepository repository;
+    private final EmployeeService employeeService;
 
     @PostMapping
     public Mono<ResponseEntity<Employee>> createEmployee(@RequestBody @Valid Mono<Employee> createEmployeeRequest) {
-        return createEmployeeRequest.flatMap(repository::save).map(employee -> new ResponseEntity<>(employee, HttpStatus.CREATED));
+        return createEmployeeRequest.flatMap(employeeService::save)
+                .map(employee -> new ResponseEntity<>(employee, HttpStatus.CREATED));
     }
 
     @GetMapping
     public Mono<ResponseEntity<List<Employee>>> getEmployees() {
-        return repository.findAll()
-                .collectList()
+        return employeeService.findAll()
                 .map(employees -> new ResponseEntity<>(employees, HttpStatus.OK));
     }
 
     @GetMapping(path = "/{id}")
     public Mono<ResponseEntity<Employee>> getEmployeeById(@NotNull @PathVariable String id) {
-        return repository.findById(UUID.fromString(id)).map(employee -> new ResponseEntity<>(employee, HttpStatus.OK));
+        return employeeService.getById(UUID.fromString(id))
+                .map(employee -> new ResponseEntity<>(employee, HttpStatus.OK));
     }
 }
