@@ -34,12 +34,12 @@ public class Employee implements Persistable<UUID> {
 
     @Transient
     @JsonIgnore
-    private boolean newEmployee;
+    private boolean newObj;
 
     @Override
     @JsonIgnore
     @Transient
     public boolean isNew() {
-        return this.newEmployee || id == null;
+        return this.newObj || id == null;
     }
 }

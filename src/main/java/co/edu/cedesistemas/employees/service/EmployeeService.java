@@ -28,7 +28,7 @@ public class EmployeeService {
     }
 
     public Mono<Employee> save(Employee employee) {
-        employee.setNewEmployee(true);
+        employee.setNewObj(true);
         employee.setId(UUID.randomUUID());
         return employeeRepository.save(employee);
     }

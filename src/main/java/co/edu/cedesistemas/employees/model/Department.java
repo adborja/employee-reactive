@@ -32,12 +32,12 @@ public class Department implements Persistable<String> {
 
     @Transient
     @JsonIgnore
-    private boolean newDepartment;
+    private boolean newObj;
 
     @Override
     @JsonIgnore
     @Transient
     public boolean isNew() {
-        return this.newDepartment || deptNumber == null;
+        return this.newObj || deptNumber == null;
     }
 }
