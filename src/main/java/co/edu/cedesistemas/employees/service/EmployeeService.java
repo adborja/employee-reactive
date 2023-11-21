@@ -34,7 +34,7 @@ public class EmployeeService {
     }
 
     public Mono<Employee> update(String id, Employee employee) {
-        return employeeRepository.findById(UUID.fromString(id))
+        return getById(UUID.fromString(id))
                 .flatMap((existingEmployee) -> {
                     existingEmployee.setSalary(employee.getSalary());
                     existingEmployee.setName(employee.getName());

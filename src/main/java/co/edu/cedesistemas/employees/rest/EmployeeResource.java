@@ -1,5 +1,6 @@
 package co.edu.cedesistemas.employees.rest;
 
+import co.edu.cedesistemas.employees.client.CurrencyClient;
 import co.edu.cedesistemas.employees.model.Employee;
 import co.edu.cedesistemas.employees.service.EmployeeService;
 import jakarta.validation.Valid;
@@ -12,9 +13,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +26,7 @@ import java.util.UUID;
 @RequestMapping("employees")
 public class EmployeeResource {
     private final EmployeeService employeeService;
+    private final CurrencyClient currencyClient;
 
     @PostMapping
     public Mono<ResponseEntity<Employee>> createEmployee(@RequestBody @Valid Mono<Employee> createEmployeeRequest) {
@@ -37,8 +41,13 @@ public class EmployeeResource {
     }
 
     @GetMapping(path = "/{id}")
-    public Mono<ResponseEntity<Employee>> getEmployeeById(@NotNull @PathVariable String id) {
+    public Mono<ResponseEntity<Employee>> getEmployeeById(@NotNull @PathVariable String id, @RequestParam(name = "currency", required = false) String currency) {
         return employeeService.getById(UUID.fromString(id))
-                .map(employee -> new ResponseEntity<>(employee, HttpStatus.OK));
+                .map(employee -> {
+                    if (currency != null) {
+                        employee.setSalary(employee.getSalary().multiply(BigDecimal.valueOf(currencyClient.getExchange(currency))));
+                    }
+                    return employee;
+        }).map(employee -> new ResponseEntity<>(employee, HttpStatus.OK));
     }
 }
