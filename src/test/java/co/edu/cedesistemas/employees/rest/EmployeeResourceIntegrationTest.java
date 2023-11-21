@@ -21,6 +21,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -138,14 +141,9 @@ public class EmployeeResourceIntegrationTest {
     }
 
     private static List<Employee> createDummyEmployees(int n) {
-        var result = new ArrayList<Employee>();
-        for (int i = 0; i < n; i ++) {
-            result.add(Employee.builder()
-                .id(UUID.randomUUID())
-                .name(FAKER.name().fullName())
-                .salary(BigDecimal.valueOf(RandomUtils.nextDouble(60000, 990000)))
-                .build());
-        }
-        return result;
+        return Stream
+                .generate(EmployeeResourceIntegrationTest::createDummyEmployee)
+                .limit(n)
+                .collect(Collectors.toList());
     }
 }
