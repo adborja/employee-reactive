@@ -4,6 +4,7 @@ import co.edu.cedesistemas.employees.model.Employee;
 import co.edu.cedesistemas.employees.model.error.EmployeeNotFoundException;
 import co.edu.cedesistemas.employees.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -12,6 +13,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmployeeService {
     private final EmployeeRepository employeeRepository;
 
@@ -27,7 +29,11 @@ public class EmployeeService {
 
     public Mono<Employee> delete(UUID id) {
         return employeeRepository.findById(id)
-                .flatMap(employee -> employeeRepository.deleteById(id).thenReturn(employee))
+                .flatMap(employee -> {
+                    var emp = employeeRepository.deleteById(id).thenReturn(employee);
+                    log.info("deleted employee: {}", id);
+                    return emp;
+                })
                 .switchIfEmpty(Mono.empty());
     }
 
