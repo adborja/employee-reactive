@@ -26,6 +26,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -145,6 +146,28 @@ public class EmployeeResourceIntegrationTest {
                 .expectBody()
                 .jsonPath("$.traceId").isNotEmpty()
                 .jsonPath("$.status").isEqualTo(HttpStatus.NOT_FOUND.name());
+    }
+
+    @Test
+    void given_not_supported_currency_should_return_bad_request() {
+        var employee = createDummyEmployee();
+        var currency = "eur";
+
+        assert employee.getId() != null;
+
+        given(currencyClient.getExchange(currency)).willReturn(1.1d);
+        given(employeeService.getById(employee.getId())).willReturn(Mono.just(employee));
+
+        testClient.get()
+                .uri(String.format("/v2/employees/%s?currency=%s", employee.getId(), currency))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.traceId").isNotEmpty()
+                .jsonPath("$.status").isEqualTo(HttpStatus.BAD_REQUEST.value())
+                .jsonPath("$.type").isEqualTo("http://cedesistemas.edu.co/errors/invalid-currency");
+
+        verify(currencyClient, times(0)).getExchange(anyString());
     }
 
     private static Department createDummyDepartment() {
