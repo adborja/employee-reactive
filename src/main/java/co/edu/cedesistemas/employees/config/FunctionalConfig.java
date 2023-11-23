@@ -4,16 +4,21 @@ import co.edu.cedesistemas.employees.model.Department;
 import co.edu.cedesistemas.employees.model.DepartmentEmployee;
 import co.edu.cedesistemas.employees.model.Employee;
 
+import co.edu.cedesistemas.employees.model.error.DepartmentNotFoundException;
 import co.edu.cedesistemas.employees.service.DepartmentService;
 import co.edu.cedesistemas.employees.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.util.UUID;
 
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
@@ -38,7 +43,14 @@ public class FunctionalConfig {
     @Bean
     RouterFunction<ServerResponse> getDepartmentByIdRoute() {
         return route(GET("/departments/{id}"),
-                req -> ok().body(departmentService.getDepartmentById(req.pathVariable("id")), Department.class));
+                req -> departmentService.getDepartmentById(req.pathVariable("id"))
+                        .flatMap(department -> ok().body(Mono.just(department), Department.class))
+                        .switchIfEmpty(ServerResponse.from(
+                                ErrorResponse.builder(new DepartmentNotFoundException(req.pathVariable("id")), HttpStatus.NOT_FOUND, "department not found")
+                                        .type(URI.create("http://cedesistemas.edu.co/errors/department-not-found"))
+                                        .title("department not found")
+                                        .build()))
+        );
     }
 
     @Bean

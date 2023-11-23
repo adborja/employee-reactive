@@ -1,6 +1,7 @@
 package co.edu.cedesistemas.employees.service;
 
 import co.edu.cedesistemas.employees.model.Employee;
+import co.edu.cedesistemas.employees.model.error.EmployeeNotFoundException;
 import co.edu.cedesistemas.employees.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,8 @@ public class EmployeeService {
     }
 
     public Mono<Employee> getById(UUID id) {
-        return employeeRepository.findById(id);
+        return employeeRepository.findById(id)
+                .switchIfEmpty(Mono.error(() -> new EmployeeNotFoundException(id)));
     }
 
     public Mono<Void> delete(UUID id) {
