@@ -3,13 +3,9 @@ package co.edu.cedesistemas.employees.rest.v2;
 import co.edu.cedesistemas.employees.client.CurrencyClient;
 import co.edu.cedesistemas.employees.model.Employee;
 import co.edu.cedesistemas.employees.model.error.BadCurrencyException;
-import co.edu.cedesistemas.employees.model.error.CustomErrorException;
-import co.edu.cedesistemas.employees.model.error.ErrorDetails;
-import co.edu.cedesistemas.employees.model.error.ErrorResponse;
 import co.edu.cedesistemas.employees.service.EmployeeService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,8 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -53,17 +47,6 @@ public class EmployeeResourceV2 {
     //TODO: Add delete endpoint with CustomErrorException handling
     @DeleteMapping("{id}")
     public Mono<Employee> deleteEmployeeById(@NotNull @PathVariable String id) {
-        return employeeService.delete(UUID.fromString(id))
-                .switchIfEmpty(Mono.error(() -> {
-                    var message = String.format("employee not found: %s", id);
-                    var errorResponse = ErrorResponse.builder()
-                            .traceId(RandomStringUtils.randomAlphanumeric(10))
-                            .status(HttpStatus.NOT_FOUND)
-                            .timestamp(OffsetDateTime.now())
-                            .message(message)
-                            .errors(List.of(ErrorDetails.API_EMPLOYEE_NOT_FOUND))
-                            .build();
-                    throw new CustomErrorException(message, errorResponse);
-                }));
+        return employeeService.delete(UUID.fromString(id));
     }
 }

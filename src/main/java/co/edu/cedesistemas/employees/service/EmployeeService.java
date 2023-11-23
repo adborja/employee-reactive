@@ -1,13 +1,19 @@
 package co.edu.cedesistemas.employees.service;
 
 import co.edu.cedesistemas.employees.model.Employee;
+import co.edu.cedesistemas.employees.model.error.CustomErrorException;
 import co.edu.cedesistemas.employees.model.error.EmployeeNotFoundException;
+import co.edu.cedesistemas.employees.model.error.ErrorDetails;
+import co.edu.cedesistemas.employees.model.error.ErrorResponse;
 import co.edu.cedesistemas.employees.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,10 +37,19 @@ public class EmployeeService {
         return employeeRepository.findById(id)
                 .flatMap(employee -> {
                     var emp = employeeRepository.deleteById(id).thenReturn(employee);
-                    log.info("deleted employee: {}", id);
+                    log.info("deleted employee: {} ({})", id, employee.getName());
                     return emp;
-                })
-                .switchIfEmpty(Mono.empty());
+                }).switchIfEmpty(Mono.error(() -> {
+                    var message = String.format("employee not found: %s", id);
+                    var errorResponse = ErrorResponse.builder()
+                            .traceId(RandomStringUtils.randomAlphanumeric(10))
+                            .status(HttpStatus.NOT_FOUND)
+                            .timestamp(OffsetDateTime.now())
+                            .message(message)
+                            .errors(List.of(ErrorDetails.API_EMPLOYEE_NOT_FOUND))
+                            .build();
+                    throw new CustomErrorException(message, errorResponse);
+                }));
     }
 
     public Mono<Employee> save(Employee employee) {
