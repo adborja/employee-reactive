@@ -22,11 +22,13 @@ public class EmployeeService {
 
     public Mono<Employee> getById(UUID id) {
         return employeeRepository.findById(id)
-                .switchIfEmpty(Mono.error(() -> new EmployeeNotFoundException(id)));
+               .switchIfEmpty(Mono.error(() -> new EmployeeNotFoundException(id)));
     }
 
-    public Mono<Void> delete(UUID id) {
-        return employeeRepository.deleteById(id);
+    public Mono<Employee> delete(UUID id) {
+        return employeeRepository.findById(id)
+                .flatMap(employee -> employeeRepository.deleteById(id).thenReturn(employee))
+                .switchIfEmpty(Mono.empty());
     }
 
     public Mono<Employee> save(Employee employee) {
