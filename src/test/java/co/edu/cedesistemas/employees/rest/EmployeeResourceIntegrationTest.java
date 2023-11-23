@@ -1,9 +1,11 @@
 package co.edu.cedesistemas.employees.rest;
 
 import co.edu.cedesistemas.employees.Application;
+import co.edu.cedesistemas.employees.client.CurrencyClient;
 import co.edu.cedesistemas.employees.model.Department;
 import co.edu.cedesistemas.employees.model.DepartmentEmployee;
 import co.edu.cedesistemas.employees.model.Employee;
+import co.edu.cedesistemas.employees.model.error.EmployeeNotFoundException;
 import co.edu.cedesistemas.employees.service.DepartmentService;
 import co.edu.cedesistemas.employees.service.EmployeeService;
 import com.github.javafaker.Faker;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -40,6 +43,9 @@ public class EmployeeResourceIntegrationTest {
 
     @MockBean
     private DepartmentService departmentService;
+
+    @MockBean
+    private CurrencyClient currencyClient;
 
     @Test
     void given_employee_id_then_get_employee_by_id() {
@@ -82,7 +88,6 @@ public class EmployeeResourceIntegrationTest {
         given(departmentService.assignEmployeeToDepartment(department.getDeptNumber(), employee.getId()))
                 .willReturn(Mono.just(departmentEmployee));
 
-
         assert employee.getId() != null;
 
         testClient.post()
@@ -121,6 +126,25 @@ public class EmployeeResourceIntegrationTest {
 
         verify(employeeService, times(1))
                 .update(employee.getId().toString(), employeeToUpdate);
+    }
+
+    @Test
+    void given_employee_id_should_return_not_found() {
+        var employee = createDummyEmployee();
+        var currency = "cop";
+
+        assert employee.getId() != null;
+
+        given(currencyClient.getExchange(currency)).willReturn(4000d);
+        given(employeeService.getById(employee.getId())).willReturn(Mono.error(() -> new EmployeeNotFoundException(employee.getId())));
+
+        testClient.get()
+                .uri(String.format("/v2/employees/%s?currency=%s", employee.getId(), currency))
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody()
+                .jsonPath("$.traceId").isNotEmpty()
+                .jsonPath("$.status").isEqualTo(HttpStatus.NOT_FOUND.name());
     }
 
     private static Department createDummyDepartment() {
