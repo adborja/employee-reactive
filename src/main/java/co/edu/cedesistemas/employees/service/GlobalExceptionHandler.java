@@ -9,6 +9,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.reactive.result.method.annotation.ResponseEntityExceptionHandler;
@@ -51,6 +52,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         problemDetail.setProperty("errors", List.of(ErrorDetails.API_CURRENCY_NOT_SUPPORTED));
         return problemDetail;
     }
+
+    //TODO: Agregar exception handler para AccessDeniedException
 
     private static ErrorResponse buildErrorResponse(HttpStatus status, String message) {
         return ErrorResponse.builder()

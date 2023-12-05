@@ -33,6 +33,7 @@ public class EmployeeService {
                .switchIfEmpty(Mono.error(() -> new EmployeeNotFoundException(id)));
     }
 
+    //TODO: Add preauthorize -> ADMIN
     public Mono<Employee> delete(UUID id) {
         return employeeRepository.findById(id)
                 .flatMap(employee -> {
@@ -58,6 +59,7 @@ public class EmployeeService {
         return employeeRepository.save(employee);
     }
 
+    //TODO: Add preauthorize -> ADMIN
     public Mono<Employee> update(String id, Employee employee) {
         return getById(UUID.fromString(id))
                 .flatMap((existingEmployee) -> {
