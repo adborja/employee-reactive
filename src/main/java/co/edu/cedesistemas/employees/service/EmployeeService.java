@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -23,17 +24,19 @@ import java.util.UUID;
 public class EmployeeService {
     private final EmployeeRepository employeeRepository;
 
+    @PreAuthorize("hasRole('READER')")
     public Mono<List<Employee>> findAll() {
         return employeeRepository.findAll()
                 .collectList();
     }
 
+    @PreAuthorize("hasRole('READER')")
     public Mono<Employee> getById(UUID id) {
         return employeeRepository.findById(id)
                .switchIfEmpty(Mono.error(() -> new EmployeeNotFoundException(id)));
     }
 
-    //TODO: Add preauthorize -> ADMIN
+    @PreAuthorize("hasRole('ADMIN')")
     public Mono<Employee> delete(UUID id) {
         return employeeRepository.findById(id)
                 .flatMap(employee -> {
@@ -53,13 +56,14 @@ public class EmployeeService {
                 }));
     }
 
+    @PreAuthorize("hasRole('WRITER')")
     public Mono<Employee> save(Employee employee) {
         employee.setNewObj(true);
         employee.setId(UUID.randomUUID());
         return employeeRepository.save(employee);
     }
 
-    //TODO: Add preauthorize -> ADMIN
+    @PreAuthorize("hasRole('WRITER')")
     public Mono<Employee> update(String id, Employee employee) {
         return getById(UUID.fromString(id))
                 .flatMap((existingEmployee) -> {

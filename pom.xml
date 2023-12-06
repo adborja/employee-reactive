@@ -62,7 +62,6 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <scope>runtime</scope>
     </dependency>
 
     <dependency>
@@ -99,8 +98,6 @@
       <artifactId>javafaker</artifactId>
       <version>1.0.2</version>
     </dependency>
-
-
   </dependencies>
 
 </project>
